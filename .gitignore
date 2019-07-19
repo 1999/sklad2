@@ -1,0 +1,7 @@
+.nyc_output
+.vscode
+.idea
+.DS_Store
+
+node_modules/
+npm-debug.log
