@@ -1,23 +1,27 @@
 {
   "compilerOptions": {
-    "outDir": "dist",
-    "module": "commonjs",
     "allowJs": false,
     "alwaysStrict": true,
     "declaration": true,
     "esModuleInterop": true,
     "importHelpers": true,
+    "module": "esnext",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": false,
     "noImplicitThis": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "outDir": "dist",
+    "rootDir": "src",
     "sourceMap": true,
     "strictNullChecks": true,
     "target": "esnext"
   },
   "exclude": [
     "node_modules"
+  ],
+  "include": [
+    "./src"
   ]
 }
