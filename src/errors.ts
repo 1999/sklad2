@@ -16,6 +16,12 @@ export class StoreMissingError extends Error {
   }
 }
 
+export class IndexMissingError extends Error {
+  public constructor() {
+    super('Index is missing');
+  }
+}
+
 export class TransactionAbortedError extends Error {
   public constructor() {
     super('Transaction was aborted');

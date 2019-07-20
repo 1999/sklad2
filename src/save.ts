@@ -1,31 +1,35 @@
 import { checkStoresExist } from './util';
 import { StoreMissingError, TransactionAbortedError } from './errors';
 
-export type Record = {
+export type ObjectStoreKeyValueRecord = {
   key?: string;
   value: IDBValidKey;
 };
 
-export class SkladInsertLite {
-  private database: IDBDatabase;
+export type SaveMode = 'insert' | 'upsert';
 
-  public constructor(database: IDBDatabase) {
+export class SkladSaveLite {
+  private database: IDBDatabase;
+  private mode: SaveMode;
+
+  public constructor(database: IDBDatabase, mode: SaveMode) {
     this.database = database;
+    this.mode = mode;
   }
 
-  public async insertIntoOne(storeName: string, records: Record[]): Promise<IDBValidKey[]> {
-    const result = await this.insertRecords({
+  public async saveIntoOneStore(storeName: string, records: ObjectStoreKeyValueRecord[]): Promise<IDBValidKey[]> {
+    const result = await this.saveRecords({
       [storeName]: records
     });
 
     return result[storeName];
   }
 
-  public async insertIntoMultiple(arg: { [storeName: string]: Record[] }): Promise<{ [storeName: string]: IDBValidKey[] }> {
-    return await this.insertRecords(arg);
+  public async saveIntoMultipleStores(arg: { [storeName: string]: ObjectStoreKeyValueRecord[] }): Promise<{ [storeName: string]: IDBValidKey[] }> {
+    return await this.saveRecords(arg);
   }
 
-  public async insertRecords(arg: { [storeName: string]: Record[] }): Promise<{ [storeName: string]: IDBValidKey[] }> {
+  private async saveRecords(arg: { [storeName: string]: ObjectStoreKeyValueRecord[] }): Promise<{ [storeName: string]: IDBValidKey[] }> {
     return new Promise((resolve, reject) => {
       const objectStoresNames = Object.keys(arg);
 
@@ -45,7 +49,8 @@ export class SkladInsertLite {
         const objectStore = transaction.objectStore(storeName);
 
         records.forEach(({ key, value }, i) => {
-          const request = objectStore.add(value, key);
+          const method = this.mode === 'insert' ? 'add' : 'put';
+          const request = objectStore[method](value, key);
 
           request.onsuccess = function () {
             result[storeName][i] = this.result;
