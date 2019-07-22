@@ -27,3 +27,9 @@ export class TransactionAbortedError extends Error {
     super('Transaction was aborted');
   }
 }
+
+export class UpgradeTransactionClosedError extends Error {
+  public constructor() {
+    super('Upgrade transaction does not exist');
+  }
+}
