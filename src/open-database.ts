@@ -3,11 +3,7 @@ import { SkladLite } from './sklad';
 
 export type Migration = (database: IDBDatabase, transaction: IDBTransaction) => void;
 
-export type OpenOptions = {
-  migrations: Migration[];
-};
-
-export const open = (databaseName: string, { migrations }: OpenOptions): Promise<SkladLite> => {
+export const open = (databaseName: string, migrations: Migration[]): Promise<SkladLite> => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(databaseName, migrations.length);
 
