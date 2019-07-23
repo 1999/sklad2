@@ -1,5 +1,5 @@
 import { checkStoresExist } from './util';
-import { StoreMissingError, TransactionAbortedError } from './errors';
+import { StoreMissingError, TransactionAbortedError, DOMExceptionError } from './errors';
 
 export type ObjectStoreKeyValueRecord = {
   key?: string;
@@ -41,9 +41,14 @@ export class SkladSaveLite {
       const transaction = this.database.transaction(objectStoresNames, 'readwrite');
       const result = this.buildEmptyResult(objectStoresNames);
 
-      transaction.onabort = () => reject(new TransactionAbortedError());
-      transaction.onerror = () => reject(transaction.error);
       transaction.oncomplete = () => resolve(result);
+      transaction.onabort = () => {
+        if (transaction.error) {
+          reject(new DOMExceptionError(transaction.error));
+        } else {
+          reject(new TransactionAbortedError());
+        }
+      };
 
       for (const [storeName, records] of Object.entries(arg)) {
         const objectStore = transaction.objectStore(storeName);

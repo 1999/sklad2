@@ -33,3 +33,9 @@ export class UpgradeTransactionClosedError extends Error {
     super('Upgrade transaction does not exist');
   }
 }
+
+export class DOMExceptionError extends Error {
+  public constructor(ex: DOMException) {
+    super(`${ex.name}: ${ex.message}`);
+  }
+}

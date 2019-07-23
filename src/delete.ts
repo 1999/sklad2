@@ -1,5 +1,5 @@
 import { checkStoresExist } from './util';
-import { StoreMissingError, TransactionAbortedError } from './errors';
+import { StoreMissingError, TransactionAbortedError, DOMExceptionError } from './errors';
 
 export type DeleteKeyRange = string | IDBKeyRange;
 
@@ -31,8 +31,13 @@ export class SkladDeleteLite {
 
       const transaction = this.database.transaction(objectStoresNames, 'readwrite');
       transaction.oncomplete = () => resolve();
-      transaction.onabort = () => reject(new TransactionAbortedError());
-      transaction.onerror = () => reject(transaction.error);
+      transaction.onabort = () => {
+        if (transaction.error) {
+          reject(new DOMExceptionError(transaction.error));
+        } else {
+          reject(new TransactionAbortedError());
+        }
+      };
 
       for (const [storeName, key] of Object.entries(arg)) {
         const objStore = transaction.objectStore(storeName);

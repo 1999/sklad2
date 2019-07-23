@@ -1,4 +1,4 @@
-import { StoreMissingError, TransactionAbortedError } from './errors';
+import { StoreMissingError, TransactionAbortedError, DOMExceptionError } from './errors';
 import { checkStoresExist } from './util';
 
 export class SkladClearLite {
@@ -25,8 +25,13 @@ export class SkladClearLite {
 
       const transaction = this.database.transaction(objectStoresNames, 'readwrite');
       transaction.oncomplete = () => resolve();
-      transaction.onabort = () => reject(new TransactionAbortedError());
-      transaction.onerror = () => reject(transaction.error);
+      transaction.onabort = () => {
+        if (transaction.error) {
+          reject(new DOMExceptionError(transaction.error));
+        } else {
+          reject(new TransactionAbortedError());
+        }
+      };
 
       for (const storeName of objectStoresNames) {
         const objectStore = transaction.objectStore(storeName);
