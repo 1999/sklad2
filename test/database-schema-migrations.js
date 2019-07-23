@@ -20,7 +20,7 @@ export const databaseMigrations = (log) => ([
     objectStore.createIndex('by_login_birthyear', ['login', 'birth_year']);
     log('index by_login_birthyear created');
 
-    objectStore.createIndex('by_login_unique', 'login', { unique: true });
+    objectStore.createIndex('by_login_unique', 'login');
     log('index by_login_unique created');
   },
 ]);

@@ -4,6 +4,12 @@ export class DatabaseBlockedError extends Error {
   }
 }
 
+export class DatabaseConnectionError extends Error {
+  public constructor() {
+    super('Count not connect to the database');
+  }
+}
+
 export class UnknownVersionUpgradeError extends Error {
   public constructor() {
     super('Request to upgrade the database to unknown version');

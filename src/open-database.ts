@@ -1,4 +1,4 @@
-import { DatabaseBlockedError, UnknownVersionUpgradeError, UpgradeTransactionClosedError } from './errors';
+import { DatabaseBlockedError, UnknownVersionUpgradeError, UpgradeTransactionClosedError, DOMExceptionError, DatabaseConnectionError } from './errors';
 import { SkladLite } from './sklad';
 
 export type Migration = (database: IDBDatabase, transaction: IDBTransaction) => void;
@@ -8,7 +8,13 @@ export const open = (databaseName: string, migrations: Migration[]): Promise<Skl
     const request = indexedDB.open(databaseName, migrations.length);
 
     request.onblocked = () => reject(new DatabaseBlockedError());
-    request.onerror = () => reject(request.error);
+    request.onerror = () => {
+      if (request.error) {
+        reject(new DOMExceptionError(request.error));
+      } else {
+        reject(new DatabaseConnectionError());
+      }
+    };
 
     request.onupgradeneeded = function (evt) {
       if (!evt.newVersion) {
@@ -26,10 +32,6 @@ export const open = (databaseName: string, migrations: Migration[]): Promise<Skl
       }
     };
 
-    request.onsuccess = () => {
-      resolve(new SkladLite(request.result));
-    };
-
-    request.onblocked = () => reject(new DatabaseBlockedError());
+    request.onsuccess = () => resolve(new SkladLite(request.result));
   });
 };
