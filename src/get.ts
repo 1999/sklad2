@@ -63,61 +63,60 @@ export class SkladGetLite {
 
           const index = objectStore.index(options.indexName);
           if (options.direction) {
-            const cursorRequest = objectStore.openCursor(options.range, options.direction);
-            cursorRequest.onsuccess = this.onCursorSuccess(cursorRequest, result[storeName], options);
+            this.getCursorValues(index, options, result[storeName]);
           } else {
-            const getAllRequest = index.getAll(options.range);
-            getAllRequest.onsuccess = this.onGetAllRequestSuccess(getAllRequest, result[storeName], options);
+            this.getAllValues(index, options, result[storeName]);
           }
         } else {
           if (options.direction) {
-            const cursorRequest = objectStore.openCursor(options.range, options.direction);
-            cursorRequest.onsuccess = this.onCursorSuccess(cursorRequest, result[storeName], options);
+            this.getCursorValues(objectStore, options, result[storeName]);
           } else {
-            const getAllRequest = objectStore.getAll(options.range);
-            getAllRequest.onsuccess = this.onGetAllRequestSuccess(getAllRequest, result[storeName], options);
+            this.getAllValues(objectStore, options, result[storeName]);
           }
         }
       }
     });
   }
 
-  private onCursorSuccess = (
-    request: IDBRequest<IDBCursorWithValue | null>,
-    result: ObjectStoreRecord[],
-    options: GetOptions,
-  ) => () => {
-    const cursor = request.result;
+  private getCursorValues(source: IDBObjectStore | IDBIndex, options: GetOptions, results: ObjectStoreRecord[]) {
+    const request = source.openCursor(options.range, options.direction);
+    let advanced = false;
 
-    if (cursor) {
-      if (options.offset && !result.length) {
-        cursor.advance(options.offset);
+    request.onsuccess = () => {
+      const cursor = request.result;
+
+      if (cursor) {
+        if (options.offset && !advanced) {
+          cursor.advance(options.offset);
+          advanced = true;
+
+          return;
+        }
+
+        results.push(cursor.value);
+
+        if (!options.limit || results.length < options.limit) {
+          cursor.continue();
+        }
       }
-
-      result.push(cursor.value);
-
-      if (!options.limit || result.length < options.limit) {
-        cursor.continue();
-      }
-    }
+    };
   }
 
-  private onGetAllRequestSuccess = (
-    request: IDBRequest<ObjectStoreRecord[]>,
-    result: ObjectStoreRecord[],
-    options: GetOptions,
-  ) => () => {
-    const records = request.result;
+  private getAllValues(source: IDBObjectStore | IDBIndex, options: GetOptions, results: ObjectStoreRecord[]) {
+    const request = source.getAll(options.range);
+    request.onsuccess = () => {
+      const records = request.result;
 
-    if (options.offset) {
-      records.splice(0, options.offset);
+      if (options.offset) {
+        records.splice(0, options.offset);
+      }
+
+      if (options.limit) {
+        records.splice(options.limit);
+      }
+
+      results.push(...records);
     }
-
-    if (options.limit) {
-      records.splice(options.limit);
-    }
-
-    result.push(...records);
   }
 
   private buildEmptyResult(objectStoresNames: string[]): { [storeName: string]: ObjectStoreRecord[] } {
