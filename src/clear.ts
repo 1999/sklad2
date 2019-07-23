@@ -1,5 +1,4 @@
-import { StoreMissingError, TransactionAbortedError, DOMExceptionError } from './errors';
-import { checkStoresExist } from './util';
+import { TransactionAbortedError, DOMExceptionError } from './errors';
 
 export class SkladClearLite {
   private database: IDBDatabase;
@@ -18,11 +17,6 @@ export class SkladClearLite {
 
   private clearObjectStores(objectStoresNames: string[]): Promise<void> {
     return new Promise((resolve, reject) => {
-      if (!checkStoresExist(this.database, objectStoresNames)) {
-        reject(new StoreMissingError());
-        return;
-      }
-
       const transaction = this.database.transaction(objectStoresNames, 'readwrite');
       transaction.oncomplete = () => resolve();
       transaction.onabort = () => {

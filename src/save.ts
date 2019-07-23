@@ -1,5 +1,4 @@
-import { checkStoresExist } from './util';
-import { StoreMissingError, TransactionAbortedError, DOMExceptionError } from './errors';
+import { TransactionAbortedError, DOMExceptionError } from './errors';
 
 export type ObjectStoreKeyValueRecord = {
   key?: string;
@@ -32,12 +31,6 @@ export class SkladSaveLite {
   private async saveRecords(arg: { [storeName: string]: ObjectStoreKeyValueRecord[] }): Promise<{ [storeName: string]: IDBValidKey[] }> {
     return new Promise((resolve, reject) => {
       const objectStoresNames = Object.keys(arg);
-
-      if (!checkStoresExist(this.database, objectStoresNames)) {
-        reject(new StoreMissingError());
-        return;
-      }
-
       const transaction = this.database.transaction(objectStoresNames, 'readwrite');
       const result = this.buildEmptyResult(objectStoresNames);
 

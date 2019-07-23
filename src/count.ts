@@ -1,5 +1,4 @@
-import { checkStoresExist } from './util';
-import { StoreMissingError, TransactionAbortedError, IndexMissingError, DOMExceptionError } from './errors';
+import { TransactionAbortedError, DOMExceptionError } from './errors';
 
 export type CountOptions = {
   indexName?: string;
@@ -28,12 +27,6 @@ export class SkladCountLite {
   private countObjects(arg: { [storeName: string]: CountOptions }): Promise<{ [storeName: string]: number }> {
     return new Promise((resolve, reject) => {
       const objectStoresNames = Object.keys(arg);
-
-      if (!checkStoresExist(this.database, objectStoresNames)) {
-        reject(new StoreMissingError());
-        return;
-      }
-
       const result: { [storeName: string]: number } = {};
       const transaction = this.database.transaction(objectStoresNames, 'readonly');
 
@@ -48,20 +41,9 @@ export class SkladCountLite {
 
       for (const [storeName, options] of Object.entries(arg)) {
         const objectStore = transaction.objectStore(storeName);
-        let request: IDBRequest<number> | undefined;
+        const source = options.indexName ? objectStore.index(options.indexName) : objectStore;
 
-        if (options.indexName) {
-          if (!objectStore.indexNames.contains(options.indexName)) {
-            reject(new IndexMissingError());
-            return;
-          }
-
-          const index = objectStore.index(options.indexName);
-          request = index.count(options.range);
-        } else {
-          request = objectStore.count(options.range);
-        }
-
+        const request = source.count(options.range);
         request.onsuccess = function () {
           result[storeName] = this.result;
         };

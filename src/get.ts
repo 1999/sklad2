@@ -1,5 +1,4 @@
-import { checkStoresExist } from './util';
-import { StoreMissingError, TransactionAbortedError, IndexMissingError, DOMExceptionError } from './errors';
+import { TransactionAbortedError, DOMExceptionError } from './errors';
 
 export type GetOptions = {
   indexName?: string;
@@ -34,12 +33,6 @@ export class SkladGetLite {
   private getObjects(arg: { [storeName: string]: GetOptions }): Promise<{ [storeName: string]: ObjectStoreRecord[] }> {
     return new Promise((resolve, reject) => {
       const objectStoresNames = Object.keys(arg);
-
-      if (!checkStoresExist(this.database, objectStoresNames)) {
-        reject(new StoreMissingError());
-        return;
-      }
-
       const result = this.buildEmptyResult(objectStoresNames);
       const transaction = this.database.transaction(objectStoresNames, 'readonly');
 
@@ -54,25 +47,12 @@ export class SkladGetLite {
 
       for (const [storeName, options] of Object.entries(arg)) {
         const objectStore = transaction.objectStore(storeName);
+        const source = options.indexName ? objectStore.index(options.indexName) : objectStore;
 
-        if (options.indexName) {
-          if (!objectStore.indexNames.contains(options.indexName)) {
-            reject(new IndexMissingError());
-            return;
-          }
-
-          const index = objectStore.index(options.indexName);
-          if (options.direction) {
-            this.getCursorValues(index, options, result[storeName]);
-          } else {
-            this.getAllValues(index, options, result[storeName]);
-          }
+        if (options.direction) {
+          this.getCursorValues(source, options, result[storeName]);
         } else {
-          if (options.direction) {
-            this.getCursorValues(objectStore, options, result[storeName]);
-          } else {
-            this.getAllValues(objectStore, options, result[storeName]);
-          }
+          this.getAllValues(source, options, result[storeName]);
         }
       }
     });
