@@ -1,6 +1,6 @@
 export const step = {
   name: 'Get all students and cards',
-  async execute(sklad, log) {
+  async execute(assertionCheck, sklad) {
     const everything = await sklad.getMultipleStores({
       students: {},
       cards: {
@@ -10,7 +10,7 @@ export const step = {
       },
     });
 
-    log(everything);
+    console.log(everything);
     return sklad;
   },
 };

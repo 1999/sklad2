@@ -11,17 +11,23 @@ const cards = [
 
 export const step = {
   name: 'Insert students and cards',
-  async execute(sklad, log) {
-    const ids = await sklad.insertIntoMultiple({
-      students: students.map((student) => ({
-        value: student,
-      })),
-      cards: cards.map((card) => ({
-        value: card,
-      }))
+  async execute(assertionCheck, sklad) {
+    await assertionCheck('should insert into multiple object stores', async () => {
+      const ids = await sklad.insertIntoMultiple({
+        students: students.map((student) => ({
+          value: student,
+        })),
+        cards: cards.map((card) => ({
+          value: card,
+        }))
+      });
+
+      expect(ids).toEqual({
+        cards: [1, 2, 3],
+        students: ['emilie@yandex.com', 'keith@gmail.com'],
+      });
     });
 
-    log(`IDs inserted into multiple store: ${JSON.stringify(ids)}`);
     return sklad;
   },
 };

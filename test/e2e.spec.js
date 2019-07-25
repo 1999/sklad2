@@ -1,4 +1,3 @@
-import { databaseMigrations } from './database-schema-migrations';
 import { runSteps } from './run-steps';
 import { step as stepConnectToDatabaseFactory } from './steps/connect-database';
 import { step as stepCloseConnection } from './steps/close-connection';
@@ -17,18 +16,19 @@ const databaseName = `e2e-${Date.now()}`;
 
 async function main() {
   await runSteps([
-    stepConnectToDatabaseFactory(databaseName, databaseMigrations, 1),
+    stepConnectToDatabaseFactory(databaseName, 1),
     stepInsertRecords,
     stepCountRecords,
     stepCloseConnection,
-    stepConnectToDatabaseFactory(databaseName, databaseMigrations, 2),
+    stepConnectToDatabaseFactory(databaseName, 2),
     stepInsertMultipleRecords,
+
     stepCountMultipleRecords,
     stepClearRecords,
     stepCountMultipleRecords,
     stepClearMultipleRecords,
     stepCloseConnection,
-    stepConnectToDatabaseFactory(databaseName, databaseMigrations, 3),
+    stepConnectToDatabaseFactory(databaseName, 3),
     stepInsertRecords,
     stepInsertMultipleRecords,
     stepCountMultipleRecords,

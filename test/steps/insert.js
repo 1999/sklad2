@@ -8,12 +8,21 @@ const students = [
 
 export const step = {
   name: 'Insert students',
-  async execute(sklad, log) {
-    const ids = await sklad.insertIntoOneStore('students', students.map((student) => ({
-      value: student,
-    })));
+  async execute(assertionCheck, sklad) {
+    await assertionCheck('should insert records into a keyPath object store', async () => {
+      const ids = await sklad.insertIntoOneStore('students', students.map((student) => ({
+        value: student,
+      })));
 
-    log(`IDs inserted into one store: ${JSON.stringify(ids)}`);
+      expect(ids).toEqual([
+        'paul@gmail.com',
+        'stephen@gmail.com',
+        'susanna@hotmail.com',
+        'susy@gmail.com',
+        'lucas@gmail.com',
+      ]);
+    });
+
     return sklad;
   },
 };

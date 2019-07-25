@@ -2,24 +2,45 @@ export async function runSteps(steps) {
   let artifact;
   let failed = false;
 
+  const assertionCheck = (container) => async (testCase, fn) => {
+    const checkResult = document.createElement('p');
+    checkResult.innerHTML = `${testCase}.. `;
+    container.appendChild(checkResult);
+
+    try {
+      const result = await fn();
+      checkResult.insertAdjacentText('beforeend', 'OK')
+
+      return result;
+    } catch (err) {
+      checkResult.insertAdjacentText('beforeend', 'Failed')
+      throw err;
+    }
+  };
+
   for (const step of steps) {
-    console.group(step.name);
+    const container = document.createElement('div');
+    container.classList.add('container');
+    container.innerHTML = `<h1>${step.name}</h1>`;
 
     if (!failed || step.final) {
       try {
-        console.time('execution time');
-        artifact = await step.execute(artifact, console.log);
-        console.log('done!');
+        artifact = await step.execute(assertionCheck(container), artifact);
+        container.classList.add('success');
       } catch (err) {
-        console.error(err);
+        container.classList.add('fail');
+
+        const errorDescription = document.createElement('pre');
+        errorDescription.innerHTML = err.message;
+        container.appendChild(errorDescription);
+
         failed = true;
-      } finally {
-        console.timeEnd('execution time');
       }
     } else {
-      console.log('skip execution step');
+      container.classList.add('skip');
+      container.firstChild.insertAdjacentText('beforeend', ' [skip]');
     }
 
-    console.groupEnd(step.name);
+    document.body.appendChild(container);
   }
 }

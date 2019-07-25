@@ -1,23 +1,23 @@
-export const databaseMigrations = (log) => ([
-  (database) => {
-    const objectStore = database.createObjectStore('students', { keyPath: 'email' });
-    log('students object store created');
-
-    objectStore.createIndex('by_login', 'login');
-    log('index by_login created');
+export const databaseMigrations = ([
+  {
+    label: 'should create an object store with a key path and an index for a field',
+    migration: (database) => {
+      const objectStore = database.createObjectStore('students', { keyPath: 'email' });
+      objectStore.createIndex('by_login', 'login');
+    },
   },
-  (database) => {
-    const objectStore = database.createObjectStore('cards', { autoIncrement: true });
-    log('cards object store created');
-
-    objectStore.createIndex('by_tag', 'tags', { multiEntry: true });
-    log('index by_tag created');
+  {
+    label: 'should create an object store with autoIncrement and a multiEntry index',
+    migration: (database) => {
+      const objectStore = database.createObjectStore('cards', { autoIncrement: true });
+      objectStore.createIndex('by_tag', 'tags', { multiEntry: true });
+    },
   },
-  (database, transaction) => {
-    const objectStore = transaction.objectStore('students');
-    log('students object store access gained');
-
-    objectStore.createIndex('by_login_birthyear', ['login', 'birthyear']);
-    log('index by_login_birthyear created');
+  {
+    label: 'should add a multi-field index to existing store',
+    migration: (database, transaction) => {
+      const objectStore = transaction.objectStore('students');
+      objectStore.createIndex('by_login_birthyear', ['login', 'birthyear']);
+    },
   },
 ]);
