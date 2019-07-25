@@ -10,9 +10,21 @@ export const step = {
     const threeStudentsSorted = await sklad.getOneStore('students', { direction: 'prev', limit: 3, offset: 1 });
     log('Students sort=prev,limit=3,offset=1', threeStudentsSorted);
 
+    const loginSortedStudents = await sklad.getOneStore('students', {
+      indexName: 'by_login',
+      direction: 'prev',
+      offset: 1,
+      limit: 4,
+    });
+    log('Students sort=prev,limit=4,offset=1,index=by_login', loginSortedStudents);
+
+    const loginBirthYearSortedStudents = await sklad.getOneStore('students', {
+      indexName: 'by_login_birthyear',
+      direction: 'prev',
+    });
+    log('Students sort=next,direction=next,index=by_login_birthyear', loginBirthYearSortedStudents);
+
     // TBD
-    // by_login
-    // by_login_birthyear
     // by_login_unique
 
     return sklad;

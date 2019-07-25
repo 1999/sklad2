@@ -9,7 +9,9 @@ import { step as stepCountRecords } from './steps/count';
 import { step as stepCountMultipleRecords } from './steps/count-multiple';
 import { step as stepClearRecords } from './steps/clear';
 import { step as stepClearMultipleRecords } from './steps/clear-multiple';
-import { step as stepGetAllRecords } from './steps/get';
+import { step as stepGetRecords } from './steps/get';
+import { step as stepGetMultipleRecords } from './steps/get-multiple';
+import { step as stepDeleteRecords } from './steps/delete';
 
 const databaseName = `e2e-${Date.now()}`;
 
@@ -24,12 +26,17 @@ async function main() {
     stepCountMultipleRecords,
     stepClearRecords,
     stepCountMultipleRecords,
+    stepClearMultipleRecords,
     stepCloseConnection,
     stepConnectToDatabaseFactory(databaseName, databaseMigrations, 3),
     stepInsertRecords,
     stepInsertMultipleRecords,
     stepCountMultipleRecords,
-    stepGetAllRecords,
+    stepGetRecords,
+    stepGetMultipleRecords,
+    stepCountMultipleRecords,
+    stepDeleteRecords,
+    stepCountMultipleRecords,
     stepClearMultipleRecords,
     stepCountMultipleRecords,
     stepCloseConnection,

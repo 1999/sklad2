@@ -17,10 +17,7 @@ export const databaseMigrations = (log) => ([
     const objectStore = transaction.objectStore('students');
     log('students object store access gained');
 
-    objectStore.createIndex('by_login_birthyear', ['login', 'birth_year']);
+    objectStore.createIndex('by_login_birthyear', ['login', 'birthyear']);
     log('index by_login_birthyear created');
-
-    objectStore.createIndex('by_login_unique', 'login');
-    log('index by_login_unique created');
   },
 ]);
