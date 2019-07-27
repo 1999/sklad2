@@ -1,7 +1,7 @@
 {
-  "name": "sklad-lite",
+  "name": "sklad2",
   "version": "0.0.1",
-  "description": "Simplified sklad library",
+  "description": "Simplest-possible async-await/promises wrapper on top of IndexedDB",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
