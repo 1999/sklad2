@@ -82,4 +82,4 @@ await deleteDatabase('databaseName');
 
 ### Bundle format
 
-`sklad2` NPM package has "module" support which is ES6 modules code and "main" which is CommonJS. It doesn't contain any polyfills for IndexedDB or Promises.
+`sklad2` NPM package has "module" support which is ES6 modules code, UMD code as "unpkg" and "main" which is CommonJS. It doesn't contain any polyfills for IndexedDB or Promises.
