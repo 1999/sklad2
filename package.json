@@ -23,6 +23,10 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1999/sklad2.git"
+  },
   "author": "Dmitrii Sorin <info@staypositive.ru>",
   "license": "MIT",
   "devDependencies": {
