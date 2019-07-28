@@ -2,8 +2,14 @@ module.exports = {
   env: {
     node: true,
   },
-  parser: undefined,
+  globals: {
+    expect: 'readonly',
+  },
+  plugins: [],
   extends: [
     'eslint:recommended',
   ],
+  rules: {
+    '@typescript-eslint/no-var-requires': 'off',
+  },
 };

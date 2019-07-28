@@ -1,47 +1,45 @@
-import { runSteps } from './run-steps';
-import { step as stepConnectToDatabaseFactory } from './steps/connect-database';
-import { step as stepCloseConnection } from './steps/close-connection';
-import { step as stepDeleteDatabaseFactory } from './steps/delete-database';
-import { step as stepInsertRecords } from './steps/insert';
-import { step as stepInsertMultipleRecords } from './steps/insert-multiple';
-import { step as stepCountRecords } from './steps/count';
-import { step as stepCountMultipleRecords } from './steps/count-multiple';
-import { step as stepClearRecords } from './steps/clear';
-import { step as stepClearMultipleRecords } from './steps/clear-multiple';
-import { step as stepGetRecords } from './steps/get';
-import { step as stepGetMultipleRecords } from './steps/get-multiple';
-import { step as stepDeleteRecords } from './steps/delete';
+import insertAndCountSpec from './insert-and-count.spec.js';
+import upsertAndClearSpec from './upsert-and-clear.spec.js';
+import getAndDeleteSpec from './get-and-delete.spec.js';
 
-const databaseName = `e2e-${Date.now()}`;
+async function suite(label, assertions) {
+  const container = document.createElement('div');
+  container.classList.add('container', 'progress');
+  container.innerHTML = `<h1>${label}</h1>`;
+  document.body.appendChild(container);
+
+  const assertionCheck = async (testCase, fn) => {
+    const checkResult = document.createElement('p');
+    checkResult.innerHTML = `${testCase}.. `;
+    container.appendChild(checkResult);
+
+    try {
+      const result = await fn();
+      checkResult.insertAdjacentText('beforeend', 'OK')
+
+      return result;
+    } catch (err) {
+      checkResult.insertAdjacentText('beforeend', 'Failed')
+      throw err;
+    }
+  };
+
+  try {
+    await assertions(assertionCheck);
+    container.classList.add('success');
+  } catch (err) {
+    container.classList.add('fail');
+
+    const errorDescription = document.createElement('pre');
+    errorDescription.innerHTML = err.message;
+    container.appendChild(errorDescription);
+  }
+}
 
 async function main() {
-  await runSteps([
-    stepConnectToDatabaseFactory(databaseName, 1),
-    stepInsertRecords,
-    stepCountRecords,
-    stepCloseConnection,
-    stepConnectToDatabaseFactory(databaseName, 2),
-    stepInsertMultipleRecords,
-
-    stepCountMultipleRecords,
-    stepClearRecords,
-    stepCountMultipleRecords,
-    stepClearMultipleRecords,
-    stepCloseConnection,
-    stepConnectToDatabaseFactory(databaseName, 3),
-    stepInsertRecords,
-    stepInsertMultipleRecords,
-    stepCountMultipleRecords,
-    stepGetRecords,
-    stepGetMultipleRecords,
-    stepCountMultipleRecords,
-    stepDeleteRecords,
-    stepCountMultipleRecords,
-    stepClearMultipleRecords,
-    stepCountMultipleRecords,
-    stepCloseConnection,
-    stepDeleteDatabaseFactory(databaseName),
-  ]);
+  await insertAndCountSpec(suite);
+  await upsertAndClearSpec(suite);
+  await getAndDeleteSpec(suite);
 }
 
 main();

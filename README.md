@@ -28,7 +28,7 @@ const upsertIdsMultiple = await sklad.upsertIntoMultiple({
 await sklad.deleteFromStore('storeName', 'key');
 await sklad.deleteFromStores({
   storeName1: 'key',
-  storeName2: IDBKeyRange.lower('key'),
+  storeName2: IDBKeyRange.lowerBound('key'),
 });
 
 // count records in the object store(s)
@@ -47,7 +47,7 @@ const recordsMultiple = await sklad.getMultipleStores({
   storeName1: {}, // get all records from the object store
   storeName2, {
     indexName: 'index',
-    range: IDBKeyRange.upper('key'),
+    range: IDBKeyRange.upperBound('key'),
     direction: 'nextunique',
     offset: 10,
     limit: 10,
