@@ -1,6 +1,6 @@
 {
   "name": "sklad2",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Simplest-possible async-await/promises wrapper on top of IndexedDB",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
