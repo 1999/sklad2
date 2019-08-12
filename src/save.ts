@@ -7,7 +7,7 @@ export type ObjectStoreKeyValueRecord = {
 
 export type SaveMode = 'insert' | 'upsert';
 
-export class SkladSaveLite {
+export class SkladSave {
   private database: IDBDatabase;
   private mode: SaveMode;
 

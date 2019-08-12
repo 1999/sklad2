@@ -2,7 +2,7 @@ import { TransactionAbortedError, DOMExceptionError } from './errors';
 
 export type DeleteKeyRange = string | IDBKeyRange;
 
-export class SkladDeleteLite {
+export class SkladDelete {
   private database: IDBDatabase;
 
   public constructor(database: IDBDatabase) {

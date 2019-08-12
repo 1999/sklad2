@@ -1,26 +1,27 @@
-import { SkladClearLite } from './clear';
-import { SkladDeleteLite, DeleteKeyRange } from './delete';
-import { SkladSaveLite, ObjectStoreKeyValueRecord } from './save';
-import { SkladCountLite, CountOptions } from './count';
-import { SkladGetLite, GetOptions, ObjectStoreRecord } from './get';
+import { SkladClear } from './clear';
+import { SkladDelete, DeleteKeyRange } from './delete';
+import { SkladSave, ObjectStoreKeyValueRecord } from './save';
+import { SkladCount, CountOptions } from './count';
+import { SkladGet, GetOptions, ObjectStoreRecord } from './get';
+import { Connection } from './connection';
 
-export class SkladLite {
+export class Sklad implements Connection {
   private database: IDBDatabase;
-  private clear: SkladClearLite;
-  private delete: SkladDeleteLite;
-  private insert: SkladSaveLite;
-  private upsert: SkladSaveLite;
-  private count: SkladCountLite;
-  private get: SkladGetLite;
+  private clear: SkladClear;
+  private delete: SkladDelete;
+  private insert: SkladSave;
+  private upsert: SkladSave;
+  private count: SkladCount;
+  private get: SkladGet;
 
   public constructor(database: IDBDatabase) {
     this.database = database;
-    this.clear = new SkladClearLite(database);
-    this.delete = new SkladDeleteLite(database);
-    this.insert = new SkladSaveLite(database, 'insert');
-    this.upsert = new SkladSaveLite(database, 'upsert');
-    this.count = new SkladCountLite(database);
-    this.get = new SkladGetLite(database);
+    this.clear = new SkladClear(database);
+    this.delete = new SkladDelete(database);
+    this.insert = new SkladSave(database, 'insert');
+    this.upsert = new SkladSave(database, 'upsert');
+    this.count = new SkladCount(database);
+    this.get = new SkladGet(database);
   }
 
   public async deleteFromStore(storeName: string, key: DeleteKeyRange): Promise<void> {

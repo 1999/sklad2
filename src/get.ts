@@ -11,7 +11,7 @@ export type GetOptions = {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ObjectStoreRecord = any;
 
-export class SkladGetLite {
+export class SkladGet {
   private database: IDBDatabase;
 
   public constructor(database: IDBDatabase) {

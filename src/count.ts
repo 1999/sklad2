@@ -5,7 +5,7 @@ export type CountOptions = {
   range?: IDBValidKey | IDBKeyRange;
 };
 
-export class SkladCountLite {
+export class SkladCount {
   private database: IDBDatabase;
 
   public constructor(database: IDBDatabase) {

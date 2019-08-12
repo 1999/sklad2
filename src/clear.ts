@@ -1,6 +1,6 @@
 import { TransactionAbortedError, DOMExceptionError } from './errors';
 
-export class SkladClearLite {
+export class SkladClear {
   private database: IDBDatabase;
 
   public constructor(database: IDBDatabase) {

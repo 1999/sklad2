@@ -1,9 +1,10 @@
 import { DatabaseBlockedError, UnknownVersionUpgradeError, UpgradeTransactionClosedError, DOMExceptionError, DatabaseConnectionError } from './errors';
-import { SkladLite } from './sklad';
+import { Sklad } from './sklad';
+import { Connection } from './connection';
 
 export type Migration = (database: IDBDatabase, transaction: IDBTransaction) => void;
 
-export const open = (databaseName: string, migrations: Migration[]): Promise<SkladLite> => {
+export const open = (databaseName: string, migrations: Migration[]): Promise<Connection> => {
   return new Promise((resolve, reject) => {
     const request = indexedDB.open(databaseName, migrations.length);
 
@@ -32,6 +33,6 @@ export const open = (databaseName: string, migrations: Migration[]): Promise<Skl
       }
     };
 
-    request.onsuccess = () => resolve(new SkladLite(request.result));
+    request.onsuccess = () => resolve(new Sklad(request.result));
   });
 };
