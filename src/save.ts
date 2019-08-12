@@ -1,8 +1,8 @@
 import { TransactionAbortedError, DOMExceptionError } from './errors';
 
 export type ObjectStoreKeyValueRecord = {
-  key?: string;
-  value: IDBValidKey;
+  key?: IDBValidKey;
+  value: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 export type SaveMode = 'insert' | 'upsert';
