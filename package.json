@@ -11,7 +11,7 @@
     "build:cjs": "tsc --build build/tsconfig.cjs.json",
     "build:esm": "tsc --build build/tsconfig.esm.json",
     "build:umd": "tsc --build build/tsconfig.umd.json",
-    "lint": "eslint -c .eslintrc.js --ext .ts src/",
+    "lint": "eslint src/",
     "prepublishOnly": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:e2e": "node test/index.js"
@@ -30,14 +30,14 @@
   "author": "Dmitrii Sorin <info@staypositive.ru>",
   "license": "MIT",
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^1.13.0",
-    "@typescript-eslint/parser": "^1.13.0",
-    "eslint": "^6.1.0",
+    "@typescript-eslint/eslint-plugin": "^8.59.3",
+    "@typescript-eslint/parser": "^8.59.3",
+    "eslint": "^9.39.4",
     "expect": "^24.8.0",
     "finalhandler": "^1.1.2",
     "husky": "^3.0.3",
     "serve-static": "^1.14.1",
-    "typescript": "^3.5.3"
+    "typescript": "^6.0.3"
   },
   "husky": {
     "hooks": {

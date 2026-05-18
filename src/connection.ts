@@ -1,9 +1,11 @@
-import { DeleteKeyRange } from './delete';
-import { ObjectStoreKeyValueRecord } from './save';
-import { CountOptions } from './count';
-import { ObjectStoreRecord, GetOptions } from './get';
+import type { DeleteKeyRange } from './delete';
+import type { ObjectStoreKeyValueRecord } from './save';
+import type { CountOptions } from './count';
+import type { GetOptions } from './get';
 
 export interface Connection {
+  getDatabaseVersion(): number;
+
   deleteFromStore(storeName: string, key: DeleteKeyRange): Promise<void>;
   deleteFromStores(arg: { [storeName: string]: DeleteKeyRange }): Promise<void>;
 
@@ -19,8 +21,10 @@ export interface Connection {
   countOneStore(storeName: string, options?: CountOptions): Promise<number>;
   countMultipleStores(arg: { [storeName: string]: CountOptions }): Promise<{ [storeName: string]: number }>;
 
-  getOneStore(storeName: string, options?: GetOptions): Promise<ObjectStoreRecord[]>;
-  getMultipleStores(arg: { [storeName: string]: GetOptions }): Promise<{ [storeName: string]: ObjectStoreRecord[] }>;
+  getOneStore<TReturnType extends object>(storeName: string, options?: GetOptions): Promise<TReturnType[]>;
+  getMultipleStores<TStoreRecords extends Record<string, object>>(arg: {
+    [StoreName in keyof TStoreRecords]: GetOptions;
+  }): Promise<{ [StoreName in keyof TStoreRecords]: TStoreRecords[StoreName][] }>;
 
   close(): void;
 }

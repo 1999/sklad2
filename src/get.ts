@@ -8,9 +8,6 @@ export type GetOptions = {
   limit?: number;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type ObjectStoreRecord = any;
-
 export class SkladGet {
   private database: IDBDatabase;
 
@@ -18,22 +15,26 @@ export class SkladGet {
     this.database = database;
   }
 
-  public async getOneStore(storeName: string, options: GetOptions): Promise<ObjectStoreRecord[]> {
-    const result = await this.getObjects({
+  public async getOneStore<TReturnType extends object>(storeName: string, options: GetOptions): Promise<TReturnType[]> {
+    const result = await this.getObjects<TReturnType>({
       [storeName]: options || {},
     });
 
     return result[storeName];
   }
 
-  public async getMultipleStores(arg: { [storeName: string]: GetOptions }): Promise<{ [storeName: string]: ObjectStoreRecord[] }> {
-    return await this.getObjects(arg);
+  public async getMultipleStores<TStoreRecords extends Record<string, object>>(arg: {
+    [StoreName in keyof TStoreRecords]: GetOptions;
+  }): Promise<{ [StoreName in keyof TStoreRecords]: TStoreRecords[StoreName][] }> {
+    return (await this.getObjects(arg)) as {
+      [StoreName in keyof TStoreRecords]: TStoreRecords[StoreName][];
+    };
   }
 
-  private getObjects(arg: { [storeName: string]: GetOptions }): Promise<{ [storeName: string]: ObjectStoreRecord[] }> {
+  private getObjects<TReturnType extends object>(arg: { [storeName: string]: GetOptions }): Promise<{ [storeName: string]: TReturnType[] }> {
     return new Promise((resolve, reject) => {
       const objectStoresNames = Object.keys(arg);
-      const result = this.buildEmptyResult(objectStoresNames);
+      const result = this.buildEmptyResult<TReturnType>(objectStoresNames);
       const transaction = this.database.transaction(objectStoresNames, 'readonly');
 
       transaction.oncomplete = () => resolve(result);
@@ -58,7 +59,7 @@ export class SkladGet {
     });
   }
 
-  private getCursorValues(source: IDBObjectStore | IDBIndex, options: GetOptions, results: ObjectStoreRecord[]) {
+  private getCursorValues<TReturnType extends object>(source: IDBObjectStore | IDBIndex, options: GetOptions, results: TReturnType[]) {
     const request = source.openCursor(options.range, options.direction);
     let advanced = false;
 
@@ -82,7 +83,7 @@ export class SkladGet {
     };
   }
 
-  private getAllValues(source: IDBObjectStore | IDBIndex, options: GetOptions, results: ObjectStoreRecord[]) {
+  private getAllValues<TReturnType extends object>(source: IDBObjectStore | IDBIndex, options: GetOptions, results: TReturnType[]) {
     const request = source.getAll(options.range);
     request.onsuccess = () => {
       const records = request.result;
@@ -96,13 +97,14 @@ export class SkladGet {
       }
 
       results.push(...records);
-    }
+    };
   }
 
-  private buildEmptyResult(objectStoresNames: string[]): { [storeName: string]: ObjectStoreRecord[] } {
-    return objectStoresNames.reduce((memo, storeName) => {
-      memo[storeName] = [];
-      return memo;
-    }, {});
+  private buildEmptyResult<TReturnType extends object>(objectStoresNames: string[]): { [storeName: string]: TReturnType[] } {
+    const result: { [storeName: string]: TReturnType[] } = {};
+    for (const storeName of objectStoresNames) {
+      result[storeName] = [];
+    }
+    return result;
   }
 }

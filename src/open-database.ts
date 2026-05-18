@@ -2,7 +2,7 @@ import { DatabaseBlockedError, UnknownVersionUpgradeError, UpgradeTransactionClo
 import { Sklad } from './sklad';
 import { Connection } from './connection';
 
-export type Migration = (database: IDBDatabase, transaction: IDBTransaction) => void;
+export type Migration = (transaction: IDBTransaction) => void;
 
 export const open = (databaseName: string, migrations: Migration[]): Promise<Connection> => {
   return new Promise((resolve, reject) => {
@@ -19,6 +19,7 @@ export const open = (databaseName: string, migrations: Migration[]): Promise<Con
 
     request.onupgradeneeded = function (evt) {
       if (!evt.newVersion) {
+        // TODO database is being deleted
         reject(new UnknownVersionUpgradeError());
         return;
       }
@@ -29,7 +30,7 @@ export const open = (databaseName: string, migrations: Migration[]): Promise<Con
           return;
         }
 
-        migrations[i](request.result, request.transaction);
+        migrations[i](request.transaction);
       }
     };
 

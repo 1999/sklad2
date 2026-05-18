@@ -1,18 +1,18 @@
 import { SkladClear } from './clear';
-import { SkladDelete, DeleteKeyRange } from './delete';
-import { SkladSave, ObjectStoreKeyValueRecord } from './save';
-import { SkladCount, CountOptions } from './count';
-import { SkladGet, GetOptions, ObjectStoreRecord } from './get';
-import { Connection } from './connection';
+import { SkladDelete, type DeleteKeyRange } from './delete';
+import { SkladSave, type ObjectStoreKeyValueRecord } from './save';
+import { SkladCount, type CountOptions } from './count';
+import { SkladGet, type GetOptions } from './get';
+import { type Connection } from './connection';
 
 export class Sklad implements Connection {
-  private database: IDBDatabase;
-  private clear: SkladClear;
-  private delete: SkladDelete;
-  private insert: SkladSave;
-  private upsert: SkladSave;
-  private count: SkladCount;
-  private get: SkladGet;
+  private readonly database: IDBDatabase;
+  private readonly clear: SkladClear;
+  private readonly delete: SkladDelete;
+  private readonly insert: SkladSave;
+  private readonly upsert: SkladSave;
+  private readonly count: SkladCount;
+  private readonly get: SkladGet;
 
   public constructor(database: IDBDatabase) {
     this.database = database;
@@ -22,6 +22,10 @@ export class Sklad implements Connection {
     this.upsert = new SkladSave(database, 'upsert');
     this.count = new SkladCount(database);
     this.get = new SkladGet(database);
+  }
+
+  public getDatabaseVersion(): number {
+    return this.database.version;
   }
 
   public async deleteFromStore(storeName: string, key: DeleteKeyRange): Promise<void> {
@@ -64,12 +68,14 @@ export class Sklad implements Connection {
     return await this.count.countMultipleStores(arg);
   }
 
-  public async getOneStore(storeName: string, options?: GetOptions): Promise<ObjectStoreRecord[]> {
-    return await this.get.getOneStore(storeName, options || {});
+  public async getOneStore<TReturnType extends object>(storeName: string, options?: GetOptions): Promise<TReturnType[]> {
+    return await this.get.getOneStore<TReturnType>(storeName, options || {});
   }
 
-  public async getMultipleStores(arg: { [storeName: string]: GetOptions }): Promise<{ [storeName: string]: ObjectStoreRecord[] }> {
-    return await this.get.getMultipleStores(arg);
+  public async getMultipleStores<TStoreRecords extends Record<string, object>>(arg: {
+    [StoreName in keyof TStoreRecords]: GetOptions;
+  }): Promise<{ [StoreName in keyof TStoreRecords]: TStoreRecords[StoreName][] }> {
+    return await this.get.getMultipleStores<TStoreRecords>(arg);
   }
 
   public close(): void {
