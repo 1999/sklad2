@@ -1,34 +1,49 @@
-import { deleteDatabase } from '../dist/esm';
-import { testcase as connectAndRunMigrations } from './cases/migrations';
-import { testcase as getRecordsMultipleStores } from './cases/get-multiple';
-import { testcase as getRecordsOneStore } from './cases/get-one';
-import { testcase as deleteOneStore } from './cases/delete-one';
-import { testcase as deleteMultipleStores } from './cases/delete-multiple';
+const { test } = require('@playwright/test');
 
-export default async function upsertAndClear(suite) {
-  await suite('Get and delete records', async (assertionCheck) => {
-    const databaseName = `e2e-${Date.now()}`;
-    let sklad = await connectAndRunMigrations(assertionCheck, databaseName, 3);
+test('Get and delete records', async ({ page }) => {
+  await page.goto('/test/fixture.html');
+  const dbName = `e2e-${Date.now()}`;
 
-    await assertionCheck('should get records from a keyPath object store', async () => {
-      await getRecordsOneStore(sklad);
-    });
+  await test.step('connect and run migrations (v3)', async () => {
+    await page.evaluate(async (dbName) => {
+      const { testcase: migrate } = await import('/test/cases/migrations.js');
+      window.__sklad = await migrate((_label, fn) => fn(), dbName, 3);
+    }, dbName);
+  });
 
-    await assertionCheck('should delete records from one store', async () => {
-      await deleteOneStore(sklad);
-    });
-
-    await assertionCheck('should get records from multiple object stores', async () => {
-      await getRecordsMultipleStores(sklad);
-    });
-
-    await assertionCheck('should delete records from multiple stores', async () => {
-      await deleteMultipleStores(sklad);
-    });
-
-    await assertionCheck('should close connection and delete the database', async () => {
-      sklad.close();
-      await deleteDatabase(databaseName);
+  await test.step('get records from one store', async () => {
+    await page.evaluate(async () => {
+      const { testcase } = await import('/test/cases/get-one.js');
+      await testcase(window.__sklad);
     });
   });
-}
+
+  await test.step('delete records from one store', async () => {
+    await page.evaluate(async () => {
+      const { testcase } = await import('/test/cases/delete-one.js');
+      await testcase(window.__sklad);
+    });
+  });
+
+  await test.step('get records from multiple stores', async () => {
+    await page.evaluate(async () => {
+      const { testcase } = await import('/test/cases/get-multiple.js');
+      await testcase(window.__sklad);
+    });
+  });
+
+  await test.step('delete records from multiple stores', async () => {
+    await page.evaluate(async () => {
+      const { testcase } = await import('/test/cases/delete-multiple.js');
+      await testcase(window.__sklad);
+    });
+  });
+
+  await test.step('close connection and delete database', async () => {
+    await page.evaluate(async (dbName) => {
+      const { deleteDatabase } = await import('/dist/esm/index.js');
+      window.__sklad.close();
+      await deleteDatabase(dbName);
+    }, dbName);
+  });
+});
