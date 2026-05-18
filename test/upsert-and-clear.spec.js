@@ -1,34 +1,49 @@
-import { deleteDatabase } from '../dist/esm';
-import { testcase as connectAndRunMigrations } from './cases/migrations';
-import { testcase as upsertRecordsMultipleStores } from './cases/upsert-multiple';
-import { testcase as upsertRecordsOneStore } from './cases/upsert-one';
-import { testcase as clearRecordsOneStore } from './cases/clear-one';
-import { testcase as clearRecordsMultipleStores } from './cases/clear-multiple';
+const { test } = require('@playwright/test');
 
-export default async function upsertAndClear(suite) {
-  await suite('Upsert and clear records', async (assertionCheck) => {
-    const databaseName = `e2e-${Date.now()}`;
-    let sklad = await connectAndRunMigrations(assertionCheck, databaseName, 3);
+test('Upsert and clear records', async ({ page }) => {
+  await page.goto('/test/fixture.html');
+  const dbName = `e2e-${Date.now()}`;
 
-    await assertionCheck('should upsert records into a keyPath object store', async () => {
-      await upsertRecordsOneStore(sklad);
-    });
+  await test.step('connect and run migrations (v3)', async () => {
+    await page.evaluate(async (dbName) => {
+      const { testcase: migrate } = await import('/test/cases/migrations.js');
+      window.__sklad = await migrate((_label, fn) => fn(), dbName, 3);
+    }, dbName);
+  });
 
-    await assertionCheck('should clear records in a keyPath object store', async () => {
-      await clearRecordsOneStore(sklad);
-    });
-
-    await assertionCheck('should upsert records into multiple object stores', async () => {
-      await upsertRecordsMultipleStores(sklad);
-    });
-
-    await assertionCheck('should clear records in a keyPath object store', async () => {
-      await clearRecordsMultipleStores(sklad);
-    });
-
-    await assertionCheck('should close connection and delete the database', async () => {
-      sklad.close();
-      await deleteDatabase(databaseName);
+  await test.step('upsert records into one store', async () => {
+    await page.evaluate(async () => {
+      const { testcase } = await import('/test/cases/upsert-one.js');
+      await testcase(window.__sklad);
     });
   });
-}
+
+  await test.step('clear records in one store', async () => {
+    await page.evaluate(async () => {
+      const { testcase } = await import('/test/cases/clear-one.js');
+      await testcase(window.__sklad);
+    });
+  });
+
+  await test.step('upsert records into multiple stores', async () => {
+    await page.evaluate(async () => {
+      const { testcase } = await import('/test/cases/upsert-multiple.js');
+      await testcase(window.__sklad);
+    });
+  });
+
+  await test.step('clear records in multiple stores', async () => {
+    await page.evaluate(async () => {
+      const { testcase } = await import('/test/cases/clear-multiple.js');
+      await testcase(window.__sklad);
+    });
+  });
+
+  await test.step('close connection and delete database', async () => {
+    await page.evaluate(async (dbName) => {
+      const { deleteDatabase } = await import('/dist/esm/index.js');
+      window.__sklad.close();
+      await deleteDatabase(dbName);
+    }, dbName);
+  });
+});
