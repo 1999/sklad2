@@ -8,7 +8,7 @@ module.exports = defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
     command: 'node test/server.js',
-    url: 'http://localhost:8080',
+    url: 'http://localhost:8080/test/fixture.html',
     reuseExistingServer: !process.env.CI,
   },
 });
