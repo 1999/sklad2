@@ -2,13 +2,33 @@
 
 This is a simplest-possible async-await/promises wrapper on top of IndexedDB. It's a successor to [sklad](https://github.com/1999/sklad) library.
 
+## Installation
+
+```
+npm install sklad2
+```
+
 ## API
 
 ```javascript
 import { open, deleteDatabase } from 'sklad2';
 
 // open connection to the database
-const sklad = await open('databaseName', [...migrations]);
+// migrations is an array of functions, one per schema version
+const sklad = await open('databaseName', [
+  (transaction) => {
+    // migration to version 1: create stores, indexes, etc.
+    const store = transaction.db.createObjectStore('storeName', { autoIncrement: true });
+    store.createIndex('indexName', 'fieldName', { unique: false });
+  },
+  (transaction) => {
+    // migration to version 2: modify schema
+    transaction.objectStore('storeName').createIndex('anotherIndex', 'anotherField');
+  },
+]);
+
+// get the current database version
+const version = sklad.getDatabaseVersion();
 
 // insert records into the object store(s)
 const insertIds = await sklad.insertIntoOneStore('storeName', [...records]);
@@ -45,7 +65,7 @@ const totalMultiple = await sklad.countMultipleStores({
 const records = await sklad.getOneStore('storeName');
 const recordsMultiple = await sklad.getMultipleStores({
   storeName1: {}, // get all records from the object store
-  storeName2, {
+  storeName2: {
     indexName: 'index',
     range: IDBKeyRange.upperBound('key'),
     direction: 'nextunique',
@@ -58,8 +78,34 @@ const recordsMultiple = await sklad.getMultipleStores({
 await sklad.clearStore('storeName');
 await sklad.clearStores(['storeName1', 'storeName2']);
 
+// close the database connection
+sklad.close();
+
 // delete the database
 await deleteDatabase('databaseName');
+```
+
+## Error handling
+
+All methods throw typed errors you can catch and inspect:
+
+- `DatabaseBlockedError` — another connection is blocking the open/delete request
+- `DatabaseConnectionError` — the connection could not be established
+- `UnknownVersionUpgradeError` — upgrade triggered with no target version
+- `UpgradeTransactionClosedError` — the upgrade transaction was unexpectedly closed
+- `TransactionAbortedError` — a read/write transaction was aborted without a specific error
+- `DOMExceptionError` — wraps a native `DOMException` thrown by IndexedDB
+
+```javascript
+import { open, DatabaseBlockedError } from 'sklad2';
+
+try {
+  const sklad = await open('databaseName', [...migrations]);
+} catch (err) {
+  if (err instanceof DatabaseBlockedError) {
+    // handle blocked
+  }
+}
 ```
 
 ## Differences with `sklad`
@@ -82,4 +128,4 @@ await deleteDatabase('databaseName');
 
 ### Bundle format
 
-`sklad2` NPM package has "module" support which is ES6 modules code, UMD code as "unpkg" and "main" which is CommonJS. It doesn't contain any polyfills for IndexedDB or Promises.
+`sklad2` NPM package ships three formats: ES modules (`module`), CommonJS (`main`), and UMD (`unpkg`). It doesn't contain any polyfills for IndexedDB or Promises.
