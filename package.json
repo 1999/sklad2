@@ -37,13 +37,7 @@
     "expect": "^30.4.1",
     "finalhandler": "^2.1.1",
     "globals": "^17.6.0",
-    "husky": "^9.1.7",
     "serve-static": "^2.2.1",
     "typescript": "^6.0.3"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run lint"
-    }
   }
 }
