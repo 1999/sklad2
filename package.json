@@ -35,7 +35,7 @@
     "@typescript-eslint/parser": "^8.60.0",
     "chai": "^6.2.2",
     "eslint": "^10.4.0",
-    "expect": "^24.9.0",
+    "expect": "^30.4.1",
     "finalhandler": "^2.1.1",
     "globals": "^17.6.0",
     "serve-static": "^2.2.1",
