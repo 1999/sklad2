@@ -62,8 +62,17 @@ const totalMultiple = await sklad.countMultipleStores({
 });
 
 // get records from the object store(s)
-const records = await sklad.getOneStore('storeName');
-const recordsMultiple = await sklad.getMultipleStores({
+// provide a type parameter for type-safe results
+interface MyRecord {
+  id: number;
+  name: string;
+}
+
+const records = await sklad.getOneStore<MyRecord>('storeName');
+const recordsMultiple = await sklad.getMultipleStores<{
+  storeName1: MyRecord;
+  storeName2: { id: number; value: string };
+}>({
   storeName1: {}, // get all records from the object store
   storeName2: {
     indexName: 'index',
@@ -120,7 +129,7 @@ try {
 
 ### Types
 
-`sklad2` is written in Typescript which means it has built-in types support.
+`sklad2` is written in TypeScript with full generic type support. The `getOneStore<T>()` and `getMultipleStores<T>()` methods accept type parameters to ensure your data is properly typed when retrieving records from the database.
 
 ### API
 
