@@ -1,9 +1,32 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <script src="/node_modules/chai/chai.js"></script>
   <script>
-    const expect = chai.expect;
+    const deepEqual = (a, b) => {
+      if (a === b) return true;
+      if (a == null || b == null) return a === b;
+      if (typeof a !== 'object' || typeof b !== 'object') return false;
+
+      const keysA = Object.keys(a);
+      const keysB = Object.keys(b);
+
+      if (keysA.length !== keysB.length) return false;
+
+      return keysA.every(key => deepEqual(a[key], b[key]));
+    };
+
+    window.expect = (actual) => ({
+      toEqual: (expected) => {
+        if (!deepEqual(actual, expected)) {
+          throw new Error(`Expected ${JSON.stringify(expected)}, but got ${JSON.stringify(actual)}`);
+        }
+      },
+      toBe: (expected) => {
+        if (actual !== expected) {
+          throw new Error(`Expected ${expected}, but got ${actual}`);
+        }
+      }
+    });
   </script>
 </head>
 <body></body>
