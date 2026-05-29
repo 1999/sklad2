@@ -31,13 +31,14 @@
   "license": "MIT",
   "devDependencies": {
     "@playwright/test": "^1.60.0",
-    "@typescript-eslint/eslint-plugin": "^8.59.3",
-    "@typescript-eslint/parser": "^8.59.3",
-    "eslint": "^9.39.4",
-    "expect": "^24.8.0",
-    "finalhandler": "^1.1.2",
-    "husky": "^3.0.3",
-    "serve-static": "^1.14.1",
+    "@typescript-eslint/eslint-plugin": "^8.60.0",
+    "@typescript-eslint/parser": "^8.60.0",
+    "eslint": "^10.4.0",
+    "expect": "^30.4.1",
+    "finalhandler": "^2.1.1",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
+    "serve-static": "^2.2.1",
     "typescript": "^6.0.3"
   },
   "husky": {
